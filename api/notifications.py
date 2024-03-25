@@ -2,15 +2,26 @@
 
 from abc import ABC, abstractmethod
 from typing import List
-from models import Notification
+
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import send_mail
+
+from models import Notification, Caregiver, Person, SensorAlert
+
 
 class NotificationSender(ABC):
-    @abstractmethod
-    def deliver_notification(self, notification: Notification):
-        pass
+    # Méthode pour livrer la notification
+    def deliver_notification(self, notification):
 
+        # TODO
+        # RECEVOIR LES DONNEES
+
+        # Générer la notification complète
+        full_notification = self.build_notification(notification)
+        # Envoyer la notification
+        self.send_notification(full_notification)
     @abstractmethod
-    def get_contacts(self) -> List[str]:
+    def build_notification(self, notification: Notification):
         pass
 
     @abstractmethod
@@ -21,32 +32,39 @@ class NotificationSender(ABC):
     def generate_body(self, notification: Notification) -> str:
         pass
 
-    def build_notification(self, notification: Notification):
-        subject = self.generate_subject(notification)
-        body = self.generate_body(notification)
-        return f"{subject}\n\n{body}"
-
+    @abstractmethod
     def send_notification(self, notification: Notification):
-        contacts = self.get_contacts()
-        formatted_notification = self.build_notification(notification)
-        for contact in contacts:
-            self.deliver_notification(notification, contact, formatted_notification)
+        pass
 
 class EmailNotificationSender(NotificationSender):
 
-    def deliver_notification(self, formatted_notification):
-        # Logique pour livrer la notification par email
-        pass
-
-    def get_contacts(self):
-        # Logique pour récupérer les contacts pour les notifications par email
-        pass
-
     def generate_subject(self, notification):
-        # Logique pour générer le sujet de la notification par email
-
-        pass
+        try:
+            # Récupérer l'objet Caregiver associé à la notification
+            caregiver = Caregiver.objects.get(id=notification.caregiver)
+            # Récupérer l'objet Person représentant la personne âgée associée au soignant
+            elderly_person = Person.objects.get(id=caregiver.elderly)
+            # Récupérer le nom de la personne âgée
+            elderly_name = f"{elderly_person.first_name} {elderly_person.last_name}"
+            return f"{elderly_name} a besoin d'aide"
+        except ObjectDoesNotExist:
+            return "Notification associée à un soignant inexistant"
 
     def generate_body(self, notification):
-        # Logique pour générer le corps de la notification par email
-        pass
+        caregiver_person = Person.objects.get(id=notification.caregiver)
+        sensort_alert = SensorAlert.objects.get(id=notification.sensor_alert)
+        return f"{caregiver_person.first_name} {caregiver_person.last_name} {sensort_alert.subject}"
+
+    def build_notification(self, notification):
+        subject = self.generate_subject(notification)
+        body = self.generate_body(notification)
+        return f"Sujet: {subject}\n\nCorps: {body}"
+
+    def send_notification(self, notification: Notification):
+        send_mail(
+            subject=self.generate_subject(notification),
+            message=self.generate_body(notification),
+            from_email="",
+            recipient_list=[''],
+        )
+
