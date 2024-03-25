@@ -8,14 +8,20 @@ class Person(models.Model):
     email = models.EmailField()
 
     def __str__(self):
-        return f'{self.first_name}'
+        return f"{self.first_name} {self.last_name} ({self.email})"
 
 
 class CaregiverLevel(models.Model):
-    level = models.IntegerField()
+    LEVEL_CHOICES = [
+        (0, 'Level 0'),
+        (1, 'Level 1'),
+        (2, 'Level 2'),
+        (3, 'Level 3'),
+    ]
+    level = models.IntegerField(choices=LEVEL_CHOICES)
 
     def __str__(self):
-        return f'{self.level}'
+        return dict(self.LEVEL_CHOICES)[self.level]
 
 
 class Caregiver(models.Model):
@@ -24,7 +30,15 @@ class Caregiver(models.Model):
     level = models.ForeignKey(CaregiverLevel, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.level} - {self.caregiver}'
+        return f'Caregiver: {self.caregiver} - Elderly: {self.elderly} - Level: {self.level}'
+
+
+class Home(models.Model):
+    home = models.CharField(max_length=50, primary_key=True)
+    elderly = models.ForeignKey(Person, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return f'Home: {self.home} - Elderly: {self.elderly}'
 
 
 class SensorAlert(models.Model):
@@ -33,7 +47,14 @@ class SensorAlert(models.Model):
     location = models.CharField(max_length=50)
     state = models.DecimalField(max_digits=5, decimal_places=2)
     measurable = models.CharField(max_length=50)
-    home = models.CharField(max_length=50)
+    home = models.ForeignKey(Home, on_delete=models.CASCADE)
 
     def __str__(self):
         return f'{self.home}'
+
+
+class Notification(models.Model):
+    caregiver = models.ForeignKey(Caregiver, on_delete=models.CASCADE)
+    sensor_alert = models.ForeignKey(SensorAlert, on_delete=models.CASCADE)
+    token = models.CharField(max_length=255, unique=True)
+    has_accepted = models.BooleanField(default=False)
