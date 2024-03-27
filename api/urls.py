@@ -1,10 +1,8 @@
 from django.urls import path, include
 from rest_framework import routers
-from .views import SensorAlertViewSet
+from .views import SensorAlertView
 
-router = routers.DefaultRouter()
-router.register('alerts', SensorAlertViewSet)
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('alert', SensorAlertView.as_view()),
 ]

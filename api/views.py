@@ -1,21 +1,30 @@
-from django.shortcuts import render
+from threading import Thread
 
-# Create your views here.
-from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework import status
 
-from .models import SensorAlert
+from chain_of_responsibility.initializer import ApplicationInitializer
 from .serializers import SensorAlertSerializer
+from .models import SensorAlert
 
-from rest_framework import viewsets
+
+def throw_in_chain(sensor_alert: SensorAlert) -> None:
+    # Get an instance of the Singleton
+    initializer_instance = ApplicationInitializer()
+    # Throw the alert into the chain
+    initializer_instance.get_chain_of_responsibility().handle(sensor_alert)
 
 
-class SensorAlertViewSet(viewsets.ModelViewSet):
-    queryset = SensorAlert.objects.all()
-    serializer_class = SensorAlertSerializer
+class SensorAlertView(APIView):
+    def post(self, request, format=None):
+        serializer = SensorAlertSerializer(data=request.data)
+        if serializer.is_valid():
+            sensor_alert = serializer.save()
 
-    # Allow GET, POST, PUT, and DELETE requests
-    # (adjust as needed for your specific API)
-    http_method_names = ['get', 'post', 'put', 'delete']
+            # Start a new thread to handle the chain
+            chain_thread = Thread(target=throw_in_chain, args=(sensor_alert,))
+            chain_thread.start()
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
