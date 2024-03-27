@@ -6,7 +6,7 @@ from typing import List
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 
-from models import Notification, Caregiver, Person, SensorAlert
+from api.models import Notification, Caregiver, Person, SensorAlert
 
 
 class NotificationSender(ABC):
