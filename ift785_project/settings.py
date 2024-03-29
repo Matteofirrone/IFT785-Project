@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api.apps.ApiConfig',
     'rest_framework',
-    "chain_of_responsibility.apps.ChainOfResponsibilityConfig"
+    "chain_of_responsibility.apps.ChainOfResponsibilityConfig",
+    "notifications_sender.apps.NotificationsSenderConfig"
 ]
 
 MIDDLEWARE = [
