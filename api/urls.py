@@ -1,10 +1,8 @@
 from django.urls import path, include
 from rest_framework import routers
-from .views import SensorAlertViewSet
-
-router = routers.DefaultRouter()
-router.register('alerts', SensorAlertViewSet)
+from .views import SensorAlertView, confirm_notification
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('alert', SensorAlertView.as_view()),
+    path('confirm-notification', confirm_notification),
 ]
