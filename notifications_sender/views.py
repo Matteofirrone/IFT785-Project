@@ -5,21 +5,21 @@ from typing import List
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
+from email.message import EmailMessage
+import smtplib
+from django.core.serializers.python import Serializer
 
 from api.models import Notification, Caregiver, Person, SensorAlert
+from ift785_project import settings
 
 
 class NotificationSender(ABC):
     # Méthode pour livrer la notification
     def deliver_notification(self, notification):
-
         # TODO
         # RECEVOIR LES DONNEES
+        return ""
 
-        # Générer la notification complète
-        full_notification = self.build_notification(notification)
-        # Envoyer la notification
-        self.send_notification(full_notification)
     @abstractmethod
     def build_notification(self, notification: Notification):
         pass
@@ -39,32 +39,40 @@ class NotificationSender(ABC):
 class EmailNotificationSender(NotificationSender):
 
     def generate_subject(self, notification):
-        try:
-            # Récupérer l'objet Caregiver associé à la notification
-            caregiver = Caregiver.objects.get(id=notification.caregiver)
-            # Récupérer l'objet Person représentant la personne âgée associée au soignant
-            elderly_person = Person.objects.get(id=caregiver.elderly)
-            # Récupérer le nom de la personne âgée
-            elderly_name = f"{elderly_person.first_name} {elderly_person.last_name}"
-            return f"{elderly_name} a besoin d'aide"
-        except ObjectDoesNotExist:
-            return "Notification associée à un soignant inexistant"
+        # TODO - Acces "subject" from notification.sensor_alert
+        subject = notification.sensor_alert.subject
+        return f"{subject}"
 
     def generate_body(self, notification):
-        caregiver_person = Person.objects.get(id=notification.caregiver)
-        sensort_alert = SensorAlert.objects.get(id=notification.sensor_alert)
-        return f"{caregiver_person.first_name} {caregiver_person.last_name} {sensort_alert.subject}"
+        # TODO - Access "Datas" from notification.sensor_alert
+        start = notification.sensor_alert.start
+        location = notification.sensor_alert.location
+        state = notification.sensor_alert.state
+        measurable = notification.sensor_alert.measurable
+        home = notification.sensor_alert.home
+        body = (f"Home : {home} \n"
+                f"Location : {location} \n"
+                f"Start : {start} \n"
+                f"State : {state} \n"
+                f"Measurable : {measurable}")
+        return f"{body}"
 
     def build_notification(self, notification):
-        subject = self.generate_subject(notification)
-        body = self.generate_body(notification)
-        return f"Sujet: {subject}\n\nCorps: {body}"
+        # TODO - Useless ?
+        return ""
 
     def send_notification(self, notification: Notification):
-        send_mail(
-            subject=self.generate_subject(notification),
-            message=self.generate_body(notification),
-            from_email="",
-            recipient_list=[''],
-        )
+        msg = EmailMessage()
+        # TODO - Access to "email" from notification.caregiver
+        msg["to"] = notification.caregiver.email
+        msg["from"] = settings.EMAIL_HOST
+        msg["Subject"] = self.generate_subject(notification)
+        msg.set_content(self.generate_body(notification))
+
+        with smtplib.SMTP_SSL(settings.EMAIL_SERVER, settings.EMAIL_PORT) as smtp:
+            smtp.login(settings.EMAIL_HOST, settings.EMAIL_PASSWORD)
+
+            # Send Mail
+            smtp.send_message(msg)
+            print("SUCCESS !")
 
