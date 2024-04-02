@@ -20,6 +20,6 @@ from django.http import HttpResponse
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('api.urls')),
+    path('api/', include(('api.urls', 'api'), namespace='api')),
     path('', lambda request: HttpResponse('IFT785 Project'))
 ]

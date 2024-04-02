@@ -4,6 +4,7 @@ from chain_of_responsibility.handlers.base_handler import BaseHandler
 from abc import ABC, abstractmethod
 import uuid
 from chain_of_responsibility.signals import notification_accepted
+from notifications_management.notification_sender.email_notification_sender import EmailNotificationSender
 
 
 class GenericCaregiverHandler(BaseHandler, ABC):
@@ -36,13 +37,13 @@ class GenericCaregiverHandler(BaseHandler, ABC):
         if caregivers is not None:
 
             # Build & start the timer
-            self._timer = threading.Timer(600, lambda: self.timer_callback(request))
+            self._timer = threading.Timer(60, lambda: self.timer_callback(request))
             self._timer.start()
 
             for caregiver in caregivers:
                 # print(caregiver)
                 notification = GenericCaregiverHandler.build_notification(caregiver, request)
-                # EmailNotificationSender().deliver_notification(notification)
+                EmailNotificationSender().deliver_notification(notification)
         else:
             # Pass the request to the next handler
             super().handle(request)
