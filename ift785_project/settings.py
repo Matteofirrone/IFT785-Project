@@ -135,6 +135,12 @@ EMAIL_HOST = 'smtp-relay.brevo.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'flyhox@gmail.com'
 EMAIL_HOST_PASSWORD = '2TJ3mg95txkLdKc8'
-# EMAIL_USE_TLS = True
-# EMAIL_USE_SSL = True  # Use SSL if your SMTP server supports it (use either TLS or SSL, not both)
 EMAIL_FROM = 'ift785project@gmail.com'
+
+# Wait times for each caregiver level (in seconds)
+CAREGIVER_ONE_WAIT_TIME = 30
+CAREGIVER_TWO_WAIT_TIME = 60
+CAREGIVER_THREE_WAIT_TIME = 90
+
+# Default wait time (in seconds)
+DEFAULT_CAREGIVER_WAIT_TIME = 60
