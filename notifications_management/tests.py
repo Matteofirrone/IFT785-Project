@@ -1,8 +1,10 @@
 from datetime import datetime
+from unittest.mock import patch
 
 from django.test import TestCase
 from api.models import Notification, Person, CaregiverLevel, Caregiver, SensorAlert, Home
 from notifications_management.notification_sender.email_notification_sender import EmailNotificationSender
+from ift785_project import settings
 
 class EmailNotificationSenderTestCase(TestCase):
     def setUp(self):
@@ -36,3 +38,41 @@ class EmailNotificationSenderTestCase(TestCase):
         # Vérifier si le destinataire est correct
         expected_recipient = self.caregiver.email
         self.assertEqual(recipient, expected_recipient)
+
+    def test_generate_content(self):
+        # Créez une instance de EmailNotificationSender
+        email_sender = EmailNotificationSender()
+
+        # Appelez la méthode generate_content avec la notification
+        content = email_sender.generate_content(self.notification)
+
+        # Vérifiez si le contenu contient les informations de la notification
+        self.assertIn(self.elderly.first_name, content)
+        self.assertIn(self.elderly.last_name, content)
+        self.assertIn(str(self.caregiver_level.level), content)
+        self.assertIn(str(self.sensor_alert.start), content)
+        self.assertIn(self.sensor_alert.location, content)
+        self.assertIn(str(self.sensor_alert.state), content)
+        self.assertIn(self.sensor_alert.measurable, content)
+
+    @patch('notifications_management.notification_sender.email_notification_sender.send_mail')
+    def test_send(self, mock_send_mail):
+        # Créez une instance de EmailNotificationSender
+        email_sender = EmailNotificationSender()
+
+        # Paramètres de test
+        subject = "Test Subject"
+        content = "Test Content"
+        recipient = "test@example.com"
+
+        # Appelez la méthode send avec les paramètres de test
+        email_sender.send(subject, content, recipient)
+
+        # Vérifiez si send_mail a été appelé avec les bons arguments
+        mock_send_mail.assert_called_once_with(
+            subject=subject,
+            message=content,
+            from_email=settings.EMAIL_FROM,  # Utilisez le paramètre par défaut pour 'from_email'
+            recipient_list=[recipient],
+            fail_silently=False,
+        )
