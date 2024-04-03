@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'rest_framework',
     "chain_of_responsibility.apps.ChainOfResponsibilityConfig",
-    "notifications_sender.apps.NotificationsSenderConfig"
+    "notifications_management.apps.NotificationsManagementConfig"
 ]
 
 MIDDLEWARE = [
@@ -126,8 +126,15 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CONFIGURATION SEND MAILS
-EMAIL_PORT = "465"
-EMAIL_SERVER = "smtp.gmail.com"
-EMAIL_HOST = "adressetest1.test@gmail.com"
-EMAIL_PASSWORD = "qynomurystjjxqva"
+# Domain
+DOMAIN = 'http://localhost:8000'
+
+# Email settings
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = 'smtp-relay.brevo.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'flyhox@gmail.com'
+EMAIL_HOST_PASSWORD = '2TJ3mg95txkLdKc8'
+# EMAIL_USE_TLS = True
+# EMAIL_USE_SSL = True  # Use SSL if your SMTP server supports it (use either TLS or SSL, not both)
+EMAIL_FROM = 'ift785project@gmail.com'

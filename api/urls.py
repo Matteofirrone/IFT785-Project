@@ -4,5 +4,5 @@ from .views import SensorAlertView, confirm_notification
 
 urlpatterns = [
     path('alert', SensorAlertView.as_view()),
-    path('confirm-notification', confirm_notification),
+    path('confirm-notification/', confirm_notification, name='confirm_notification')
 ]
