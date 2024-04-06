@@ -7,6 +7,7 @@ class ApiConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'api'
 
+    # Add CaregiverLevels to DB
     def ready(self):
         @receiver(post_migrate)
         def populate_caregiver_levels(sender, **kwargs):
