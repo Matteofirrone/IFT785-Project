@@ -1,12 +1,11 @@
 from unittest import mock
-
 from django.test import TestCase
-
 from api.models import Person, CaregiverLevel, Home, Caregiver, SensorAlert, Notification
 from chain_of_responsibility.handlers.Caregivers.generic_caregiver_handler.caregiver_one_handler import \
     CaregiverOneHandler
 from chain_of_responsibility.handlers.Caregivers.generic_caregiver_handler.generic_caregiver import \
     GenericCaregiverHandler
+from chain_of_responsibility.handlers.base_handler import BaseHandler
 
 
 class GenericCaregiverHandlerTestCase(TestCase):
@@ -52,7 +51,11 @@ class GenericCaregiverHandlerTestCase(TestCase):
         correctly calls the `deliver_notification` method of the `NotificationSender` class
         with a `Notification` instance containing the correct `caregiver` and `sensor_alert`.
         """
-        handler = CaregiverOneHandler()
+
+        # Create a mock head of chain
+        head_of_chain = mock.Mock(spec=BaseHandler)
+
+        handler = CaregiverOneHandler(head_of_chain)
         handler.get_caregivers = mock.Mock(return_value=[self.caregiver])
         handler.handle(self.sensor_alert)
 
@@ -68,7 +71,11 @@ class GenericCaregiverHandlerTestCase(TestCase):
         correctly calls the `handle` method of the next handler in the chain of responsibility
         with the same `sensor_alert`.
         """
-        handler = CaregiverOneHandler()
+
+        # Create a mock head of chain
+        head_of_chain = mock.Mock(spec=BaseHandler)
+
+        handler = CaregiverOneHandler(head_of_chain)
         handler._next_handler = mock.Mock()
         handler.timer_callback(self.sensor_alert)
         handler._next_handler.handle.assert_called_once_with(self.sensor_alert)
@@ -80,7 +87,11 @@ class GenericCaregiverHandlerTestCase(TestCase):
         This test verifies that the `on_notification_accepted` method of the `CaregiverOneHandler` class
         correctly cancels the timer when a notification is accepted by a caregiver.
         """
-        handler = CaregiverOneHandler()
+
+        # Create a mock head of chain
+        head_of_chain = mock.Mock(spec=BaseHandler)
+
+        handler = CaregiverOneHandler(head_of_chain)
         handler.get_caregivers = mock.Mock(return_value=[self.caregiver])
         handler.handle(self.sensor_alert)
 

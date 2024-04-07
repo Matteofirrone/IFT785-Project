@@ -14,12 +14,6 @@ class CaregiverTwoHandler(GenericCaregiverHandler):
 
     WAIT_TIME = settings.CAREGIVER_TWO_WAIT_TIME
 
-    def __init__(self):
-        """
-        Initializes a new instance of the `CaregiverTwoHandler` class.
-        """
-        super().__init__()
-
     def get_caregivers(self, request: SensorAlert):
         """
         Retrieves the level 2 caregivers associated with an elderly person.

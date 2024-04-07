@@ -53,9 +53,9 @@ class ChainManager(metaclass=SingletonMeta):
             Handler: The head of the new chain of responsibility.
         """
         chain_of_responsibility = CaregiverZeroHandler()
-        caregiver_one = CaregiverOneHandler()
-        caregiver_two = CaregiverTwoHandler()
-        caregiver_three = CaregiverThreeHandler()
+        caregiver_one = CaregiverOneHandler(chain_of_responsibility)
+        caregiver_two = CaregiverTwoHandler(chain_of_responsibility)
+        caregiver_three = CaregiverThreeHandler(chain_of_responsibility)
         chain_of_responsibility.set_next(caregiver_one).set_next(caregiver_two).set_next(caregiver_three)
         self._chains.append(chain_of_responsibility)
         return chain_of_responsibility
@@ -83,7 +83,7 @@ class ChainManager(metaclass=SingletonMeta):
         Removes a chain of responsibility from the list once it has completed its work.
 
         Args:
-            chain (Handler): The chain of responsibility to be removed.
+            chain (Handler): The chain of responsibility to be removed (HEAD).
         """
         if chain in self._chains:
             self._chains.remove(chain)
