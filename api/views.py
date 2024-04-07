@@ -5,17 +5,17 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from chain_of_responsibility.initializer import ApplicationInitializer
+from chain_of_responsibility.chain_manager import ChainManager
 from chain_of_responsibility.signals import notification_accepted
 from .serializers import SensorAlertSerializer
 from .models import SensorAlert, Notification
 
 
 def throw_in_chain(sensor_alert: SensorAlert) -> None:
-    # Get an instance of the Singleton
-    initializer_instance = ApplicationInitializer()
-    # Throw the alert into the chain
-    initializer_instance.get_chain_of_responsibility().handle(sensor_alert)
+    # Get the instance of the ChainManager
+    chain_manager = ChainManager()
+    # Throw the alert into a new chain
+    chain_manager.get_chain_of_responsibility().handle(sensor_alert)
 
 
 class SensorAlertView(APIView):

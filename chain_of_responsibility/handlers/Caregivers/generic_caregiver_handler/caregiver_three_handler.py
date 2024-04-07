@@ -14,12 +14,6 @@ class CaregiverThreeHandler(GenericCaregiverHandler):
 
     WAIT_TIME = settings.CAREGIVER_THREE_WAIT_TIME
 
-    def __init__(self):
-        """
-        Initializes a new instance of the `CaregiverThreeHandler` class.
-        """
-        super().__init__()
-
     def get_caregivers(self, request: SensorAlert):
         """
         Retrieves the level 3 caregivers associated with an elderly person.
@@ -28,3 +22,7 @@ class CaregiverThreeHandler(GenericCaregiverHandler):
         :return: A list of level 3 caregivers.
         """
         return Caregiver.objects.filter(elderly=request.home.elderly, level__level=3)
+
+    def handle(self, request: SensorAlert) -> None:
+        super().handle(request)
+        self.remove_chain()  # Remove the chain from the ChainManager
