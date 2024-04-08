@@ -36,10 +36,11 @@ class SensorAlertView(APIView):
 def confirm_notification(request):
     token = request.GET.get('token')
     notification = get_object_or_404(Notification, token=token)
-    notification.has_accepted = True
-    notification.save()
 
-    # Dispatch the signal
-    notification_accepted.send(sender=confirm_notification, notification=notification)
-
-    return HttpResponse("Notification accepted.")
+    # Check whether the sensor alert associated with this notification has already been resolved.
+    if not notification.sensor_alert.is_resolved:
+        # Dispatch the signal
+        notification_accepted.send(sender=confirm_notification, notification=notification)
+        return HttpResponse(f"Request for assistance accepted : please go help {notification.caregiver.elderly.first_name}")
+    else:
+        return HttpResponse(f"Request for assistance already accepted : someone is already on their way to help {notification.caregiver.elderly.first_name}")

@@ -48,6 +48,7 @@ class SensorAlert(models.Model):
     state = models.DecimalField(max_digits=5, decimal_places=2)
     measurable = models.CharField(max_length=50)
     home = models.ForeignKey(Home, on_delete=models.CASCADE)
+    is_resolved = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.home}'
