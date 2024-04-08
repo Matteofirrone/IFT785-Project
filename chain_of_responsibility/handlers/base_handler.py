@@ -37,6 +37,15 @@ class BaseHandler(Handler):
         self._next_handler = handler
         return handler
 
+    def get_next(self):
+        """
+        Get the next handler in the chain.
+
+        Returns:
+            Handler: The next handler.
+        """
+        return self._next_handler
+
     def handle(self, request):
         """
         Passes the request to the next handler if available.

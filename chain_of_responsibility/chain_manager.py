@@ -87,3 +87,10 @@ class ChainManager(metaclass=SingletonMeta):
         """
         if chain in self._chains:
             self._chains.remove(chain)
+
+            # Free the chain from memory
+            current_handler = chain
+            while current_handler is not None:
+                next_handler = current_handler.get_next()
+                del current_handler
+                current_handler = next_handler

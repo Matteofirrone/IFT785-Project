@@ -113,6 +113,17 @@ class GenericCaregiverHandler(BaseHandler, ABC):
         # Check if this notification was sent by this handler
         if notification in self._generated_notifications:
             # Handle the accepted notification
+
+            # Set the has_accepted attribute of the notification to True
+            notification.has_accepted = True
+            notification.save()
             print(f"Notification {notification.id} has been accepted.")
+
+            # Resolve the SensorAlert
+            sensor_alert = notification.sensor_alert
+            sensor_alert.is_resolved = True
+            sensor_alert.save()
+            print(f"SensorAlert {sensor_alert.id} has been resolved.")
+
             self._timer.cancel()
             self.remove_chain()

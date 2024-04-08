@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 class Handler(ABC):
     """
-    Abstract base class for defining handlers in the chain of responsibility pattern.
+    Interface for defining handlers in the chain of responsibility pattern.
     """
 
     @abstractmethod
@@ -20,6 +20,16 @@ class Handler(ABC):
         pass
 
     @abstractmethod
+    def get_next(self):
+        """
+        Get the next handler in the chain.
+
+        Returns:
+            Handler: The next handler.
+        """
+        pass
+
+    @abstractmethod
     def handle(self, request):
         """
         Handle the incoming request.
@@ -28,4 +38,3 @@ class Handler(ABC):
             request: The request to be handled.
         """
         pass
-
