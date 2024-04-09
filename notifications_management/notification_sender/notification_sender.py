@@ -23,13 +23,12 @@ class NotificationSender(ABC):
         recipient = self.get_recipient(notification)
         self.send(subject=subject, content=content, recipient=recipient)
 
-    @abstractmethod
-    def generate_content(self, notification: Notification):
-        pass
 
-    @abstractmethod
+    def generate_content(self, notification: Notification):
+        return self.level.generate_content(notification)
+
     def generate_subject(self, notification: Notification):
-        pass
+        return self.level.generate_subject(notification)
 
     @abstractmethod
     def get_recipient(self, notification: Notification):

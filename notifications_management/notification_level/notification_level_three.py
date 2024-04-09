@@ -1,5 +1,6 @@
 from api.models import Notification
 from notifications_management.notification_level.notification_level import NotificationLevel
+from notifications_management.notification_sender.notification_sender import NotificationSender
 
 
 class NotificationLevelThree(NotificationLevel):
@@ -23,7 +24,7 @@ class NotificationLevelThree(NotificationLevel):
             f"Please click on the following link to confirm "
             f"that you have received this notification and will provide the "
             f"necessary assistance.\n\n"
-            f"Confirmation link: {self.generate_link(notification)}\n\n"
+            f"Confirmation link: {NotificationSender.generate_link(notification)}\n\n"
             f"Best regards,\n"
             f"IFT785 Project Team"
         )
