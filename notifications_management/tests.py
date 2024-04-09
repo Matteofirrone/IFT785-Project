@@ -1,10 +1,11 @@
 from datetime import datetime
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 from django.test import TestCase
 from django.urls import reverse
 
 from api.models import Notification, Person, CaregiverLevel, Caregiver, SensorAlert, Home
+from notifications_management.notification_level.notification_level import NotificationLevel
 from notifications_management.notification_level.notification_level_one import NotificationLevelOne
 from notifications_management.notification_level.notification_level_three import NotificationLevelThree
 from notifications_management.notification_level.notification_level_two import NotificationLevelTwo
@@ -24,6 +25,9 @@ class EmailNotificationSenderTestCase(TestCase):
         self.sensor_alert = SensorAlert.objects.create(subject="Test Alert", start=datetime.now(), location="Test Location", state=0.5, measurable="Test Measurable", home=self.home)
         self.notification = Notification.objects.create(caregiver=self.caregiver_instance, sensor_alert=self.sensor_alert, token="test_token")
 
+    """
+    Tests method : generate_subject
+    """
     def test_generate_subject_EmailNotificationSender_NotificationLevelOne(self):
         # Créer une instance de EmailNotificationSender
         email_sender = EmailNotificationSender(NotificationLevelOne())
@@ -57,6 +61,21 @@ class EmailNotificationSenderTestCase(TestCase):
         expected_subject = f"Assistance Requested for {self.elderly.first_name} {self.elderly.last_name} - Caregiver {self.caregiver_level}"
         self.assertEqual(subject, expected_subject)
 
+    def test_generate_subject_with_null_level(self):
+        # Créer une instance de NotificationSender avec un objet fictif pour level
+        sender = EmailNotificationSender(level=None)
+
+        # Créer une instance de Notification pour tester la méthode generate_subject
+        notification = self.notification
+
+        # Tester si une exception ValueError est levée
+        with self.assertRaises(ValueError):
+            sender.generate_subject(notification)
+
+    """
+    Tests method : get_recipient
+    """
+
     def test_get_recipient_EmailNotificationSender_NotificationLevelOne(self):
         # Créer une instance de EmailNotificationSender
         email_sender = EmailNotificationSender(NotificationLevelOne())
@@ -89,6 +108,10 @@ class EmailNotificationSenderTestCase(TestCase):
         # Vérifier si le destinataire est correct
         expected_recipient = self.caregiver.email
         self.assertEqual(recipient, expected_recipient)
+
+    """
+    Tests method : generate_content
+    """
 
     def test_generate_content_EmailNotificationSender_NotificationLevelOne(self):
         # Créez une instance de EmailNotificationSender
@@ -140,6 +163,21 @@ class EmailNotificationSenderTestCase(TestCase):
         self.assertIn(str(self.sensor_alert.state), content)
         self.assertIn(self.sensor_alert.measurable, content)
         self.assertIn(f"(This in an alert with level 3)", content)
+
+    def test_generate_content_with_level_None(self):
+        # Créer une instance de NotificationSender avec level=None
+        sender = EmailNotificationSender(None)
+
+        # Créer une instance de Notification pour tester la méthode generate_content
+        notification = MagicMock()
+
+        # Tester si une exception ValueError est levée
+        with self.assertRaises(ValueError):
+            sender.generate_content(notification)
+
+    """
+    Tests method : send
+    """
 
     @patch('notifications_management.notification_sender.email_notification_sender.send_mail')
     def test_send_with_Strategy_NotificationLevelOne(self, mock_send_mail):
@@ -205,7 +243,6 @@ class EmailNotificationSenderTestCase(TestCase):
         )
 
 
-
 class NotificationSenderTestCase(TestCase):
 
     @patch('notifications_management.notification_sender.notification_sender.NotificationSender.send')
@@ -247,3 +284,33 @@ class NotificationSenderTestCase(TestCase):
 
         # Vérifiez si l'URL générée est correcte
         self.assertEqual(generated_link, f"{domain}{expected_url}?token={token}")
+
+    """
+    Tests methods : get_level & set_level 
+    """
+
+    def test_level_setter(self):
+        # Créer une instance de NotificationLevel pour simuler une valeur de niveau
+        level = NotificationLevelOne()
+
+        # Créer une instance de NotificationSender
+        sender = EmailNotificationSender(level=None)
+
+        # Appeler le setter pour définir une nouvelle valeur pour level
+        sender.level = level
+
+        # Vérifier si la nouvelle valeur a été correctement attribuée
+        self.assertEqual(sender.level, level)
+
+    def test_level_getter(self):
+        # Créer une instance de NotificationLevel pour simuler une valeur de niveau
+        level = NotificationLevelOne()
+
+        # Créer une instance de NotificationSender avec une valeur de niveau
+        sender = EmailNotificationSender(level=level)
+
+        # Obtenir la valeur de level en utilisant le getter
+        retrieved_level = sender.level
+
+        # Vérifier si la valeur récupérée est la même que celle définie précédemment
+        self.assertEqual(retrieved_level, level)
