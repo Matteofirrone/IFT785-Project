@@ -5,6 +5,9 @@ from abc import ABC, abstractmethod
 import uuid
 from chain_of_responsibility.signals import notification_accepted
 from ift785_project import settings
+from notifications_management.notification_level.notification_level_one import NotificationLevelOne
+from notifications_management.notification_level.notification_level_three import NotificationLevelThree
+from notifications_management.notification_level.notification_level_two import NotificationLevelTwo
 from notifications_management.notification_sender.email_notification_sender import EmailNotificationSender
 
 
@@ -79,7 +82,9 @@ class GenericCaregiverHandler(BaseHandler, ABC):
                 # print(caregiver)
                 notification = GenericCaregiverHandler.build_notification(caregiver, request)
                 self._generated_notifications.add(notification)
-                EmailNotificationSender().deliver_notification(notification)
+
+                strategy = NotificationLevelThree()
+                EmailNotificationSender(strategy).deliver_notification(notification)
         else:
             # Pass the request to the next handler
             super().handle(request)
