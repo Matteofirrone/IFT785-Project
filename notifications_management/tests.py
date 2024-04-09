@@ -56,3 +56,46 @@ class EmailNotificationSenderTestCase(TestCase):
         # Vérifier si le sujet généré est correct
         expected_subject = f"Assistance Requested for {self.elderly.first_name} {self.elderly.last_name} - Caregiver {self.caregiver_level}"
         self.assertEqual(subject, expected_subject)
+
+
+class NotificationSenderTestCase(TestCase):
+
+    @patch('notifications_management.notification_sender.notification_sender.NotificationSender.send')
+    def test_deliver_notification_Send_is_called_once(self, mock_send):
+        # Créez une instance de NotificationSender (c'est une classe abstraite, donc nous utilisons une sous-classe fictive)
+        class TestNotificationSender(NotificationSender):
+            def generate_content(self, notification):
+                return "Test Content"
+
+            def generate_subject(self, notification):
+                return "Test Subject"
+
+            def get_recipient(self, notification):
+                return "test@example.com"
+
+        notification_sender = TestNotificationSender(NotificationLevelOne())
+
+        # Créez un objet de notification
+        notification = Notification()
+
+        # Appelez la méthode deliver_notification avec l'objet de notification
+        notification_sender.deliver_notification(notification)
+
+        # Vérifiez si la méthode send a été appelée avec les bons arguments
+        mock_send.assert_called_once_with(subject="Test Subject", content="Test Content", recipient="test@example.com")
+
+    @patch('notifications_management.notification_sender.notification_sender.reverse')
+    def test_generate_link(self, mock_reverse):
+        # Paramètres de test
+        notification = Notification()
+        token = "test_token"
+        notification.token = token
+        domain = settings.DOMAIN
+        expected_url = "/confirm_notification"  # Supposons que c'est l'URL attendue pour la confirmation de notification
+        mock_reverse.return_value = expected_url
+
+        # Appelez la méthode generate_link sans passer d'objet Notification
+        generated_link = NotificationSender.generate_link(notification)
+
+        # Vérifiez si l'URL générée est correcte
+        self.assertEqual(generated_link, f"{domain}{expected_url}?token={token}")
