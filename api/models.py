@@ -18,7 +18,7 @@ class CaregiverLevel(models.Model):
         (2, 'Level 2'),
         (3, 'Level 3'),
     ]
-    level = models.IntegerField(choices=LEVEL_CHOICES)
+    level = models.IntegerField(choices=LEVEL_CHOICES, unique=True)
 
     def __str__(self):
         return dict(self.LEVEL_CHOICES)[self.level]
@@ -28,6 +28,9 @@ class Caregiver(models.Model):
     elderly = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='elderly')
     caregiver = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='caregivers')
     level = models.ForeignKey(CaregiverLevel, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('elderly', 'caregiver',)
 
     def __str__(self):
         return f'Caregiver: {self.caregiver} - Elderly: {self.elderly} - Level: {self.level}'
