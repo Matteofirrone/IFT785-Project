@@ -18,11 +18,10 @@ class NotificationSender(ABC):
         return f"{domain}{url}?token={token}"
 
     def deliver_notification(self, notification: Notification):
-        content = self.level.generate_content(notification)
-        subject = self.level.generate_subject(notification)
+        content = self.generate_content(notification)
+        subject = self.generate_subject(notification)
         recipient = self.get_recipient(notification)
         self.send(subject=subject, content=content, recipient=recipient)
-
 
     def generate_content(self, notification: Notification):
         return self.level.generate_content(notification)

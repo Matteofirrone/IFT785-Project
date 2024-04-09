@@ -2,6 +2,9 @@ import threading
 
 from api.models import SensorAlert, Caregiver
 from chain_of_responsibility.handlers.base_handler import BaseHandler
+from notifications_management.notification_level.notification_level_one import NotificationLevelOne
+from notifications_management.notification_level.notification_level_two import NotificationLevelTwo
+from notifications_management.notification_sender.email_notification_sender import EmailNotificationSender
 
 
 class CaregiverZeroHandler(BaseHandler):
@@ -10,14 +13,14 @@ class CaregiverZeroHandler(BaseHandler):
 
     def handle(self, request: SensorAlert):
         # Get the caregiver
-        caregiver = self.get_caregivers(request)
+        caregiver = self.get_caregiver(request)
 
         if caregiver is not None:
 
             # print(caregiver)
             notification = BaseHandler.build_notification(caregiver, request)
             self._generated_notifications.add(notification)
-            # EmailNotificationSender().deliver_notification(NotificationLevelOne(), notification)
+            EmailNotificationSender(NotificationLevelOne()).deliver_notification(notification)
 
             # Build & start the timer
             self._timer = threading.Timer(self.WAIT_TIME, lambda: self.timer_callback(request, notification))
@@ -27,12 +30,12 @@ class CaregiverZeroHandler(BaseHandler):
             super().handle(request)
 
     def get_caregiver(self, request: SensorAlert) -> Caregiver:
-        return Caregiver.objects.filter(elderly=request.home.elderly, caregiver=request.home.elderly, level__level=0)
+        return Caregiver.objects.get(elderly=request.home.elderly, caregiver=request.home.elderly, level__level=0)
 
     def timer_callback(self, request, notification):
+        EmailNotificationSender(NotificationLevelTwo()).deliver_notification(notification)
         self._timer = threading.Timer(self.WAIT_TIME - 20, lambda: self.second_timer_callback(request))
         self._timer.start()
-        # EmailNotificationSender().deliver_notification(NotificationLevelTwo(), notification)
 
     def second_timer_callback(self, request):
         super().handle(request)
