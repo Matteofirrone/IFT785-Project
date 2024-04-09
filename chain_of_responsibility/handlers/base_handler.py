@@ -1,3 +1,6 @@
+import uuid
+
+from api.models import Notification, Caregiver, SensorAlert
 from chain_of_responsibility.handlers.abstract_handler import Handler
 
 
@@ -11,6 +14,35 @@ class BaseHandler(Handler):
     """
     _next_handler = None
 
+    @staticmethod
+    def build_notification(caregiver: Caregiver, sensor_alert: SensorAlert) -> Notification:
+        """
+        Builds a new notification for the given caregiver and sensor alert.
+
+        :param caregiver: The association between an elderly_person and a caregiver.
+        :param sensor_alert: The sensor alert that triggered the notification.
+        :return: The new notification.
+        """
+        notification = Notification(caregiver=caregiver, sensor_alert=sensor_alert,
+                                    token=BaseHandler.generate_token())
+        notification.save()
+        return notification
+
+    @staticmethod
+    def generate_token() -> str:
+        """
+        Generates a unique token for a notification.
+
+        :return: A unique token.
+        """
+        token = str(uuid.uuid4())
+
+        # Check if the UUID already exists
+        while Notification.objects.filter(token=token).exists():
+            token = str(uuid.uuid4())
+
+        return token
+
     def __init__(self, head_of_chain=None):
         """
         Initializes a new instance of the `BaseHandler` class.
@@ -23,6 +55,8 @@ class BaseHandler(Handler):
             self._head_of_chain = self
         else:
             self._head_of_chain = head_of_chain
+        self._timer = None
+        self._generated_notifications = set()
 
     def set_next(self, handler):
         """
