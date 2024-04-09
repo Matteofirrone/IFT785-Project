@@ -57,9 +57,31 @@ class EmailNotificationSenderTestCase(TestCase):
         expected_subject = f"Assistance Requested for {self.elderly.first_name} {self.elderly.last_name} - Caregiver {self.caregiver_level}"
         self.assertEqual(subject, expected_subject)
 
-    def test_get_recipient(self):
+    def test_get_recipient_EmailNotificationSender_NotificationLevelOne(self):
         # Créer une instance de EmailNotificationSender
         email_sender = EmailNotificationSender(NotificationLevelOne())
+
+        # Appeler la méthode get_recipient avec la notification
+        recipient = email_sender.get_recipient(self.notification)
+
+        # Vérifier si le destinataire est correct
+        expected_recipient = self.caregiver.email
+        self.assertEqual(recipient, expected_recipient)
+
+    def test_get_recipient_EmailNotificationSender_NotificationLevelTwo(self):
+        # Créer une instance de EmailNotificationSender
+        email_sender = EmailNotificationSender(NotificationLevelTwo())
+
+        # Appeler la méthode get_recipient avec la notification
+        recipient = email_sender.get_recipient(self.notification)
+
+        # Vérifier si le destinataire est correct
+        expected_recipient = self.caregiver.email
+        self.assertEqual(recipient, expected_recipient)
+
+    def test_get_recipient_EmailNotificationSender_NotificationLevelThree(self):
+        # Créer une instance de EmailNotificationSender
+        email_sender = EmailNotificationSender(NotificationLevelThree())
 
         # Appeler la méthode get_recipient avec la notification
         recipient = email_sender.get_recipient(self.notification)
@@ -118,6 +140,69 @@ class EmailNotificationSenderTestCase(TestCase):
         self.assertIn(str(self.sensor_alert.state), content)
         self.assertIn(self.sensor_alert.measurable, content)
         self.assertIn(f"(This in an alert with level 3)", content)
+
+    @patch('notifications_management.notification_sender.email_notification_sender.send_mail')
+    def test_send_with_Strategy_NotificationLevelOne(self, mock_send_mail):
+        # Créez une instance de EmailNotificationSender
+        email_sender = EmailNotificationSender(NotificationLevelOne())
+
+        recipient = "test@example.com"
+
+        # Appelez la méthode send avec les paramètres de test
+        email_sender.send(email_sender.level.generate_subject(self.notification),
+                          email_sender.level.generate_content(self.notification),
+                          recipient)
+
+        # Vérifiez si send_mail a été appelé avec les bons arguments
+        mock_send_mail.assert_called_once_with(
+            subject=email_sender.level.generate_subject(self.notification),
+            message=email_sender.level.generate_content(self.notification),
+            from_email=settings.EMAIL_FROM,  # Utilisez le paramètre par défaut pour 'from_email'
+            recipient_list=[recipient],
+            fail_silently=False,
+        )
+
+    @patch('notifications_management.notification_sender.email_notification_sender.send_mail')
+    def test_send_with_Strategy_NotificationLevelTwo(self, mock_send_mail):
+        # Créez une instance de EmailNotificationSender
+        email_sender = EmailNotificationSender(NotificationLevelTwo())
+
+        recipient = "test@example.com"
+
+        # Appelez la méthode send avec les paramètres de test
+        email_sender.send(email_sender.level.generate_subject(self.notification),
+                          email_sender.level.generate_content(self.notification),
+                          recipient)
+
+        # Vérifiez si send_mail a été appelé avec les bons arguments
+        mock_send_mail.assert_called_once_with(
+            subject=email_sender.level.generate_subject(self.notification),
+            message=email_sender.level.generate_content(self.notification),
+            from_email=settings.EMAIL_FROM,  # Utilisez le paramètre par défaut pour 'from_email'
+            recipient_list=[recipient],
+            fail_silently=False,
+        )
+
+    @patch('notifications_management.notification_sender.email_notification_sender.send_mail')
+    def test_send_with_Strategy_NotificationLevelThree(self, mock_send_mail):
+        # Créez une instance de EmailNotificationSender
+        email_sender = EmailNotificationSender(NotificationLevelThree())
+
+        recipient = "test@example.com"
+
+        # Appelez la méthode send avec les paramètres de test
+        email_sender.send(email_sender.level.generate_subject(self.notification),
+                          email_sender.level.generate_content(self.notification),
+                          recipient)
+
+        # Vérifiez si send_mail a été appelé avec les bons arguments
+        mock_send_mail.assert_called_once_with(
+            subject=email_sender.level.generate_subject(self.notification),
+            message=email_sender.level.generate_content(self.notification),
+            from_email=settings.EMAIL_FROM,  # Utilisez le paramètre par défaut pour 'from_email'
+            recipient_list=[recipient],
+            fail_silently=False,
+        )
 
 
 
