@@ -1,10 +1,12 @@
 from unittest import mock
 from django.test import TestCase
 from api.models import Person, CaregiverLevel, Home, Caregiver, SensorAlert, Notification
+from chain_of_responsibility.chain_manager import ChainManager
 from chain_of_responsibility.handlers.Caregivers.generic_caregiver_handler.caregiver_one_handler import \
     CaregiverOneHandler
 from chain_of_responsibility.handlers.Caregivers.generic_caregiver_handler.generic_caregiver import \
     GenericCaregiverHandler
+from chain_of_responsibility.handlers.abstract_handler import Handler
 from chain_of_responsibility.handlers.base_handler import BaseHandler
 
 
@@ -99,3 +101,90 @@ class GenericCaregiverHandlerTestCase(TestCase):
         handler._timer = mock.Mock()
         handler.on_notification_accepted(notification=notification)
         handler._timer.cancel.assert_called_once()
+
+
+class ChainManagerTestCase(TestCase):
+    """
+    Test case class for ChainManager.
+    """
+    def test_singleton(self):
+        """
+        Test the singleton behavior of the ChainManager class.
+        This test verifies that only one instance of ChainManager can be created.
+        """
+        # Create two instances of ChainManager
+        manager1 = ChainManager()
+        manager2 = ChainManager()
+
+        # They should be the same instance
+        self.assertIs(manager1, manager2)
+
+    def test_initialize_chain_of_responsibility(self):
+        """
+        Test the initialize_chain_of_responsibility method of the ChainManager class.
+        This test verifies that the method correctly initializes a new chain of responsibility.
+        """
+        # Get the ChainManager instance
+        manager = ChainManager()
+
+        # Initialize a new chain of responsibility
+        chain = manager.initialize_chain_of_responsibility()
+
+        # It should be an instance of Handler
+        self.assertIsInstance(chain, Handler)
+
+    def test_get_chain_of_responsibility(self):
+        """
+        Test the get_chain_of_responsibility method of the ChainManager class.
+        This test ensures that a new chain of responsibility can be correctly retrieved.
+        """
+        # Get the ChainManager instance
+        manager = ChainManager()
+
+        # Get two chains of responsibility
+        chain1 = manager.get_chain_of_responsibility()
+        chain2 = manager.get_chain_of_responsibility()
+
+        # They should be different instances of Handler
+        self.assertIsInstance(chain1, Handler)
+        self.assertIsInstance(chain2, Handler)
+        self.assertIsNot(chain1, chain2)
+
+    def test_get_chains_of_responsibility(self):
+        """
+        Test the get_chains_of_responsibility method of the ChainManager class.
+        This test ensures that all chains of responsibility can be correctly retrieved.
+        """
+        # Get the ChainManager instance
+        manager = ChainManager()
+
+        # Initialize two chains of responsibility
+        chain1 = manager.initialize_chain_of_responsibility()
+        chain2 = manager.initialize_chain_of_responsibility()
+
+        # Get the list of chains of responsibility
+        chains = manager.get_chains_of_responsibility()
+
+        # It should contain the two chains
+        self.assertIn(chain1, chains)
+        self.assertIn(chain2, chains)
+
+    def test_remove_chain(self):
+        """
+        Test the remove_chain method of the ChainManager class.
+        This test ensures that a chain of responsibility can be correctly removed.
+        """
+        # Get the ChainManager instance
+        manager = ChainManager()
+
+        # Initialize two chains of responsibility
+        chain1 = manager.initialize_chain_of_responsibility()
+        chain2 = manager.initialize_chain_of_responsibility()
+
+        # Remove the first chain
+        manager.remove_chain(chain1)
+
+        # The list of chains should only contain the second chain
+        chains = manager.get_chains_of_responsibility()
+        self.assertIn(chain2, chains)
+        self.assertNotIn(chain1, chains)
