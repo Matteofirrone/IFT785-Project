@@ -57,6 +57,69 @@ class EmailNotificationSenderTestCase(TestCase):
         expected_subject = f"Assistance Requested for {self.elderly.first_name} {self.elderly.last_name} - Caregiver {self.caregiver_level}"
         self.assertEqual(subject, expected_subject)
 
+    def test_get_recipient(self):
+        # Créer une instance de EmailNotificationSender
+        email_sender = EmailNotificationSender(NotificationLevelOne())
+
+        # Appeler la méthode get_recipient avec la notification
+        recipient = email_sender.get_recipient(self.notification)
+
+        # Vérifier si le destinataire est correct
+        expected_recipient = self.caregiver.email
+        self.assertEqual(recipient, expected_recipient)
+
+    def test_generate_content_EmailNotificationSender_NotificationLevelOne(self):
+        # Créez une instance de EmailNotificationSender
+        email_sender = EmailNotificationSender(NotificationLevelOne())
+
+        # Appelez la méthode generate_content avec la notification
+        content = email_sender.generate_content(self.notification)
+
+        # Vérifiez si le contenu contient les informations de la notification
+        self.assertIn(self.elderly.first_name, content)
+        self.assertIn(self.elderly.last_name, content)
+        self.assertIn(str(self.caregiver_level.level), content)
+        self.assertIn(str(self.sensor_alert.start), content)
+        self.assertIn(self.sensor_alert.location, content)
+        self.assertIn(str(self.sensor_alert.state), content)
+        self.assertIn(self.sensor_alert.measurable, content)
+        self.assertIn(f"(This in an alert with level 1)", content)
+
+    def test_generate_content_EmailNotificationSender_NotificationLevelTwo(self):
+        # Créez une instance de EmailNotificationSender
+        email_sender = EmailNotificationSender(NotificationLevelTwo())
+
+        # Appelez la méthode generate_content avec la notification
+        content = email_sender.generate_content(self.notification)
+
+        # Vérifiez si le contenu contient les informations de la notification
+        self.assertIn(self.elderly.first_name, content)
+        self.assertIn(self.elderly.last_name, content)
+        self.assertIn(str(self.caregiver_level.level), content)
+        self.assertIn(str(self.sensor_alert.start), content)
+        self.assertIn(self.sensor_alert.location, content)
+        self.assertIn(str(self.sensor_alert.state), content)
+        self.assertIn(self.sensor_alert.measurable, content)
+        self.assertIn(f"(This in an alert with level 2)", content)
+
+    def test_generate_content_EmailNotificationSender_NotificationLevelThree(self):
+        # Créez une instance de EmailNotificationSender
+        email_sender = EmailNotificationSender(NotificationLevelThree())
+
+        # Appelez la méthode generate_content avec la notification
+        content = email_sender.generate_content(self.notification)
+
+        # Vérifiez si le contenu contient les informations de la notification
+        self.assertIn(self.elderly.first_name, content)
+        self.assertIn(self.elderly.last_name, content)
+        self.assertIn(str(self.caregiver_level.level), content)
+        self.assertIn(str(self.sensor_alert.start), content)
+        self.assertIn(self.sensor_alert.location, content)
+        self.assertIn(str(self.sensor_alert.state), content)
+        self.assertIn(self.sensor_alert.measurable, content)
+        self.assertIn(f"(This in an alert with level 3)", content)
+
+
 
 class NotificationSenderTestCase(TestCase):
 
