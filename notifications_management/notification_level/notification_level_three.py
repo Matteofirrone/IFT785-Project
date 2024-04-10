@@ -27,6 +27,7 @@ class NotificationLevelThree(NotificationLevel):
             f"Confirmation link: {NotificationSender.generate_link(notification)}\n\n"
             f"Best regards,\n"
             f"IFT785 Project Team"
+            f"(This in an alert with level 3)"
         )
         return content
 

@@ -10,6 +10,14 @@ class NotificationSender(ABC):
     def __init__(self, level: NotificationLevel):
         self.level = level
 
+    @property
+    def level(self):
+        return self._level
+
+    @level.setter
+    def level(self, value):
+        self._level = value
+
     @staticmethod
     def generate_link(notification: Notification):
         token = notification.token
@@ -24,9 +32,13 @@ class NotificationSender(ABC):
         self.send(subject=subject, content=content, recipient=recipient)
 
     def generate_content(self, notification: Notification):
+        if self.level is None:
+            raise ValueError("Level is not set")
         return self.level.generate_content(notification)
 
     def generate_subject(self, notification: Notification):
+        if self.level is None:
+            raise ValueError("Level is not set")
         return self.level.generate_subject(notification)
 
     @abstractmethod
