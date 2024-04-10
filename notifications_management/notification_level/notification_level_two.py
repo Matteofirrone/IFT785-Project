@@ -6,6 +6,17 @@ from notifications_management.notification_sender.notification_sender import Not
 class NotificationLevelTwo(NotificationLevel):
 
     def generate_content(self, notification: Notification):
+        """
+         Generate the content of the notification email with level two.
+
+         This method generates the content of the notification email to be sent to the elderly person.
+
+         Args:
+             notification (Notification): The notification object containing information about the alert.
+
+         Returns:
+             str: The content of the notification email.
+         """
         elderly = notification.caregiver.elderly
         sensor_alert = notification.sensor_alert
 
@@ -28,6 +39,17 @@ class NotificationLevelTwo(NotificationLevel):
         return content
 
     def generate_subject(self, notification: Notification):
+        """
+        Generate the subject of the notification email with level two.
+
+        This method generates the subject line of the notification email to be sent to the elderly person.
+
+        Args:
+            notification (Notification): The notification object containing information about the alert.
+
+        Returns:
+            str: The subject line of the notification email.
+        """
         sensor_alert = notification.sensor_alert
         elderly = notification.caregiver.elderly
         subject = f"REMINDER : Alert detected for {elderly.first_name} {elderly.last_name} ({sensor_alert.location})"
