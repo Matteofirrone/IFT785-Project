@@ -6,6 +6,17 @@ from notifications_management.notification_sender.notification_sender import Not
 class NotificationLevelThree(NotificationLevel):
 
     def generate_content(self, notification: Notification):
+        """
+         Generate the content of the notification email with level three.
+
+         This method generates the content of the notification email to be sent to the caregiver person.
+
+         Args:
+             notification (Notification): The notification object containing information about the alert.
+
+         Returns:
+             str: The content of the notification email.
+         """
         caregiver = notification.caregiver.caregiver
         elderly = notification.caregiver.elderly
         caregiver_level = notification.caregiver.level.level
@@ -32,6 +43,17 @@ class NotificationLevelThree(NotificationLevel):
         return content
 
     def generate_subject(self, notification: Notification):
+        """
+        Generate the subject of the notification email with level three.
+
+        This method generates the subject line of the notification email to be sent to the caregiver person.
+
+        Args:
+            notification (Notification): The notification object containing information about the alert.
+
+        Returns:
+            str: The subject line of the notification email.
+        """
         elderly = notification.caregiver.elderly
         caregiver_level = notification.caregiver.level.level
         subject = f"Assistance Requested for {elderly.first_name} {elderly.last_name} - Caregiver Level {caregiver_level}"
