@@ -19,6 +19,7 @@ class CaregiverLevel(models.Model):
         (3, 'Level 3'),
     ]
     level = models.IntegerField(choices=LEVEL_CHOICES, unique=True)
+    wait_time = models.IntegerField(default=10)
 
     def __str__(self):
         return dict(self.LEVEL_CHOICES)[self.level]
@@ -50,7 +51,7 @@ class SensorAlert(models.Model):
     location = models.CharField(max_length=50)
     state = models.DecimalField(max_digits=5, decimal_places=2)
     measurable = models.CharField(max_length=50)
-    home = models.ForeignKey(Home, on_delete=models.CASCADE)
+    home = models.ForeignKey(Home, on_delete=models.CASCADE, null=True)
     is_resolved = models.BooleanField(default=False)
 
     def __str__(self):

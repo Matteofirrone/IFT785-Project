@@ -20,7 +20,7 @@ class PersonAdmin(admin.ModelAdmin):
 
 
 class CaregiverLevelAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('level', 'wait_time')
 
 
 class CaregiverAdmin(admin.ModelAdmin):
