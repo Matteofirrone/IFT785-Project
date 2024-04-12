@@ -20,7 +20,20 @@ class PersonAdmin(admin.ModelAdmin):
 
 
 class CaregiverLevelAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('level', 'wait_time')
+    ordering = ('level',)
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return ['level']
+        else:
+            return []
 
 
 class CaregiverAdmin(admin.ModelAdmin):

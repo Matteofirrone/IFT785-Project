@@ -19,6 +19,7 @@ class CaregiverLevel(models.Model):
         (3, 'Level 3'),
     ]
     level = models.IntegerField(choices=LEVEL_CHOICES, unique=True)
+    wait_time = models.IntegerField(default=600)
 
     def __str__(self):
         return dict(self.LEVEL_CHOICES)[self.level]

@@ -1,5 +1,5 @@
 import threading
-from api.models import SensorAlert, Caregiver
+from api.models import SensorAlert, Caregiver, CaregiverLevel
 from chain_of_responsibility.handlers.base_handler import BaseHandler
 from notifications_management.notification_level.notification_level_one import NotificationLevelOne
 from notifications_management.notification_level.notification_level_two import NotificationLevelTwo
@@ -14,7 +14,7 @@ class CaregiverZeroHandler(BaseHandler):
     If the request cannot be handled by this handler, it will pass the request to the next handler in the chain.
     """
 
-    WAIT_TIME = 30
+    WAIT_TIME = CaregiverLevel.objects.get(level=0).wait_time
 
     def handle(self, request: SensorAlert):
         """
