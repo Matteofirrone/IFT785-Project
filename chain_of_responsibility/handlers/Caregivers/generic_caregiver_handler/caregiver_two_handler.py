@@ -1,7 +1,6 @@
 from api.models import SensorAlert, Caregiver, CaregiverLevel
 from chain_of_responsibility.handlers.Caregivers.generic_caregiver_handler.generic_caregiver import \
     GenericCaregiverHandler
-from ift785_project import settings
 
 
 class CaregiverTwoHandler(GenericCaregiverHandler):
@@ -12,7 +11,7 @@ class CaregiverTwoHandler(GenericCaregiverHandler):
     and sends notifications to them when a sensor alert is triggered.
     """
 
-    WAIT_TIME = (CaregiverLevel.objects.get(level=2)).wait_time
+    WAIT_TIME = CaregiverLevel.objects.get(level=2).wait_time
 
     def get_caregivers(self, request: SensorAlert):
         """

@@ -137,13 +137,5 @@ EMAIL_HOST_USER = 'flyhox@gmail.com'
 EMAIL_HOST_PASSWORD = '2TJ3mg95txkLdKc8'
 EMAIL_FROM = 'ift785project@gmail.com'
 
-# Wait times for each caregiver level (in seconds)
-CAREGIVER_ONE_WAIT_TIME = 30
-CAREGIVER_TWO_WAIT_TIME = 30
-CAREGIVER_THREE_WAIT_TIME = 30
-
-# Default wait time (in seconds)
-DEFAULT_CAREGIVER_WAIT_TIME = 60
-
 # Test whether the environment is a test environment or not
 TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'

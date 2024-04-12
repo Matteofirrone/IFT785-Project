@@ -1,13 +1,8 @@
 import threading
-from api.models import Notification, Caregiver, SensorAlert
+from api.models import SensorAlert, CaregiverLevel
 from chain_of_responsibility.handlers.base_handler import BaseHandler
 from abc import ABC, abstractmethod
-import uuid
-from chain_of_responsibility.signals import notification_accepted
-from ift785_project import settings
-from notifications_management.notification_level.notification_level_one import NotificationLevelOne
 from notifications_management.notification_level.notification_level_three import NotificationLevelThree
-from notifications_management.notification_level.notification_level_two import NotificationLevelTwo
 from notifications_management.notification_sender.email_notification_sender import EmailNotificationSender
 
 
@@ -22,7 +17,7 @@ class GenericCaregiverHandler(BaseHandler, ABC):
     that should receive notifications.
     """
 
-    WAIT_TIME = settings.DEFAULT_CAREGIVER_WAIT_TIME
+    WAIT_TIME = CaregiverLevel._meta.get_field('wait_time').default
 
     def handle(self, request: SensorAlert) -> None:
         """
@@ -68,4 +63,3 @@ class GenericCaregiverHandler(BaseHandler, ABC):
         :param request: The sensor alert that triggered the timer.
         """
         super().handle(request)
-

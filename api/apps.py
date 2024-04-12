@@ -14,7 +14,7 @@ class ApiConfig(AppConfig):
         @receiver(post_migrate)
         def populate_caregiver_levels(sender, **kwargs):
             if sender.name == 'api' and not settings.TESTING:
-                from api.models import CaregiverLevel  # Importez CaregiverLevel ici pour éviter l'erreur d'accès anticipé à l'application
+                from api.models import CaregiverLevel
                 CaregiverLevel.objects.get_or_create(level=0)
                 CaregiverLevel.objects.get_or_create(level=1)
                 CaregiverLevel.objects.get_or_create(level=2)
