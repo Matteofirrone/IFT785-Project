@@ -14,7 +14,15 @@ class CaregiverZeroHandler(BaseHandler):
     If the request cannot be handled by this handler, it will pass the request to the next handler in the chain.
     """
 
-    WAIT_TIME = CaregiverLevel.objects.get(level=0).wait_time
+    def __init__(self):
+        """
+        Initialize the CaregiverZeroHandler object.
+
+        This method initializes the CaregiverZeroHandler object by calling the constructor of the parent class and
+        setting the value of the WAIT_TIME attribute to the one present in database.
+        """
+        super().__init__()
+        self.WAIT_TIME = CaregiverLevel.objects.get(level=0).wait_time
 
     def handle(self, request: SensorAlert):
         """

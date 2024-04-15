@@ -17,7 +17,17 @@ class GenericCaregiverHandler(BaseHandler, ABC):
     that should receive notifications.
     """
 
-    WAIT_TIME = CaregiverLevel._meta.get_field('wait_time').default
+    def __init__(self, head_of_chain):
+        """
+        Initialize the GenericCaregiverHandler object.
+
+        This method initializes the GenericCaregiverHandler object by calling the constructor of the parent class
+        with the head_of_chain argument and setting the value of the WAIT_TIME to the default value present in database.
+
+        :param head_of_chain: The first handler in the chain of responsibility.
+        """
+        super().__init__(head_of_chain)
+        self.WAIT_TIME = CaregiverLevel._meta.get_field('wait_time').default
 
     def handle(self, request: SensorAlert) -> None:
         """
