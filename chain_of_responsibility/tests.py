@@ -224,50 +224,76 @@ class HandlersTestCase(TestCase):
         self.sensor_alert = SensorAlert.objects.create(subject='stove', start='2022-05-09T16:13:09.754Z', location='kitchen', state=29.22, measurable='anomalous_location_temperature', home=self.home)
 
     def test_getCaregivers_CaregiverZeroHandler(self):
-        # Create a mock head of chain
-        head_of_chain = mock.Mock(spec=BaseHandler)
-
+        """
+            Test the get_caregivers method of the CaregiverZeroHandler class.
+            This test ensures that the caregiver returning by the method is at the good level (0)
+        """
+        # Creating an instance of the CaregiverZeroHandler handler
         handler = CaregiverZeroHandler()
-        handler.handle(self.sensor_alert)
 
+        # Checking that the handler returns the correct level zero caregiver for the sensor alert
         self.assertEquals(self.caregiverLevelZero, handler.get_caregiver(self.sensor_alert))
+
+        # Checking that the handler does not return higher level caregivers for the sensor alert
         self.assertNotEquals(self.caregiverLevelOne, handler.get_caregiver(self.sensor_alert))
         self.assertNotEquals(self.caregiverLevelTwo, handler.get_caregiver(self.sensor_alert))
         self.assertNotEquals(self.caregiverLevelThree, handler.get_caregiver(self.sensor_alert))
 
     def test_getCaregivers_CaregiverOneHandler(self):
-        # Create a mock head of chain
+        """
+            Test the get_caregivers method of the CaregiverOneHandler class.
+            This test ensures that the caregiver returning by the method is at the good level (1)
+        """
+        # Create a mock head of the chain
         head_of_chain = mock.Mock(spec=BaseHandler)
 
+        # Create an instance of the CaregiverOneHandler with the mock head of the chain
         handler = CaregiverOneHandler(head_of_chain)
-        handler.handle(self.sensor_alert)
 
+        # Check that the handler returns level one caregivers for the sensor alert
         self.assertIn(self.caregiverLevelOne, handler.get_caregivers(self.sensor_alert))
+
+        # Check that the handler does not return caregivers of other levels for the sensor alert
         self.assertNotIn(self.caregiverLevelZero, handler.get_caregivers(self.sensor_alert))
         self.assertNotIn(self.caregiverLevelTwo, handler.get_caregivers(self.sensor_alert))
         self.assertNotIn(self.caregiverLevelThree, handler.get_caregivers(self.sensor_alert))
 
     def test_getCaregivers_CaregiverTwoHandler(self):
+        """
+            Test the get_caregivers method of the CaregiverTwoHandler class.
+            This test ensures that the caregiver returning by the method is at the good level (2)
+        """
         # Create a mock head of chain
         head_of_chain = mock.Mock(spec=BaseHandler)
 
+        # Create an instance of the CaregiverTwoHandler with the mock head of the chain
         handler = CaregiverTwoHandler(head_of_chain)
-        handler.handle(self.sensor_alert)
 
+        # Check that the handler returns level two caregivers for the sensor alert
         self.assertIn(self.caregiverLevelTwo, handler.get_caregivers(self.sensor_alert))
+
+        # Check that the handler does not return caregivers of other levels for the sensor alert
         self.assertNotIn(self.caregiverLevelZero, handler.get_caregivers(self.sensor_alert))
         self.assertNotIn(self.caregiverLevelOne, handler.get_caregivers(self.sensor_alert))
         self.assertNotIn(self.caregiverLevelThree, handler.get_caregivers(self.sensor_alert))
 
     def test_getCaregivers_CaregiverThreeHandler(self):
+        """
+            Test the get_caregivers method of the CaregiverThreeHandler class.
+            This test ensures that the caregiver returning by the method is at the good level (3)
+        """
         # Create a mock head of chain
         head_of_chain = mock.Mock(spec=BaseHandler)
 
+        # Create an instance of the CaregiverThreeHandler with the mock head of the chain
         handler = CaregiverThreeHandler(head_of_chain)
-        handler.handle(self.sensor_alert)
 
+        # Check that the handler returns level three caregivers for the sensor alert
         self.assertIn(self.caregiverLevelThree, handler.get_caregivers(self.sensor_alert))
+
+        # Check that the handler does not return caregivers of other levels for the sensor alert
         self.assertNotIn(self.caregiverLevelZero, handler.get_caregivers(self.sensor_alert))
         self.assertNotIn(self.caregiverLevelOne, handler.get_caregivers(self.sensor_alert))
         self.assertNotIn(self.caregiverLevelTwo, handler.get_caregivers(self.sensor_alert))
+
 
