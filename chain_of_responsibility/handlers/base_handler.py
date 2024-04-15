@@ -13,7 +13,6 @@ class BaseHandler(Handler):
         _next_handler: The next handler in the chain.
         _head_of_chain: The head of the chain.
     """
-    _next_handler = None
 
     @staticmethod
     def build_notification(caregiver: Caregiver, sensor_alert: SensorAlert) -> Notification:

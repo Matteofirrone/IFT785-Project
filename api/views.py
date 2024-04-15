@@ -41,6 +41,6 @@ def confirm_notification(request):
     if not notification.sensor_alert.is_resolved:
         # Dispatch the signal
         notification_accepted.send(sender=confirm_notification, notification=notification)
-        return HttpResponse(f"Request for assistance accepted : please go help {notification.caregiver.elderly.first_name}")
+        return HttpResponse(f"Request for assistance accepted : please proceed with the necessary actions for {notification.caregiver.elderly.first_name}")
     else:
-        return HttpResponse(f"Request for assistance already accepted : someone is already on their way to help {notification.caregiver.elderly.first_name}")
+        return HttpResponse(f"The request for assistance has already been accepted : assistance is currently in progress for {notification.caregiver.elderly.first_name}")

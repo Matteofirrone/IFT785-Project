@@ -107,6 +107,13 @@ class ChainManagerTestCase(TestCase):
     """
     Test case class for ChainManager.
     """
+
+    def setUp(self):
+        self.caregiver_level = CaregiverLevel.objects.create(level=0)
+        self.caregiver_level = CaregiverLevel.objects.create(level=1)
+        self.caregiver_level = CaregiverLevel.objects.create(level=2)
+        self.caregiver_level = CaregiverLevel.objects.create(level=3)
+
     def test_singleton(self):
         """
         Test the singleton behavior of the ChainManager class.
