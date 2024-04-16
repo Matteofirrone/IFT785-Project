@@ -2,8 +2,13 @@ from unittest import mock
 from django.test import TestCase
 from api.models import Person, CaregiverLevel, Home, Caregiver, SensorAlert, Notification
 from chain_of_responsibility.chain_manager import ChainManager
+from chain_of_responsibility.handlers.Caregivers.caregiver_zero_handler import CaregiverZeroHandler
 from chain_of_responsibility.handlers.Caregivers.generic_caregiver_handler.caregiver_one_handler import \
     CaregiverOneHandler
+from chain_of_responsibility.handlers.Caregivers.generic_caregiver_handler.caregiver_three_handler import \
+    CaregiverThreeHandler
+from chain_of_responsibility.handlers.Caregivers.generic_caregiver_handler.caregiver_two_handler import \
+    CaregiverTwoHandler
 from chain_of_responsibility.handlers.Caregivers.generic_caregiver_handler.generic_caregiver import \
     GenericCaregiverHandler
 from chain_of_responsibility.handlers.abstract_handler import Handler
@@ -195,3 +200,219 @@ class ChainManagerTestCase(TestCase):
         chains = manager.get_chains_of_responsibility()
         self.assertIn(chain2, chains)
         self.assertNotIn(chain1, chains)
+
+class HandlersTestCase(TestCase):
+    def setUp(self):
+        """
+        This method creates the necessary instances for the tests and link them together
+        (elderly person, caregiver, caregiver level, home, sensor alert).
+        These instances will be used in the different tests.
+        """
+        self.elderly_person = Person.objects.create(first_name='John', last_name='Doe', email='john@example.com')
+        self.caregiver_person_one = Person.objects.create(first_name='Jane', last_name='Doe', email='jane@example.com')
+        self.caregiver_person_one_2 = Person.objects.create(first_name='Janette', last_name='Philips', email='janette@example.com')
+        self.caregiver_person_two = Person.objects.create(first_name='Sam', last_name='Smith', email='sam@example.com')
+        self.caregiver_person_two_2 = Person.objects.create(first_name='Sammy', last_name='Johnson', email='sammy@example.com')
+        self.caregiver_person_three = Person.objects.create(first_name='Felix', last_name='Williams', email='felix@example.com')
+        self.caregiver_person_three_2 = Person.objects.create(first_name='Josh', last_name='Williamson', email='josh@example.com')
+        self.caregiver_level_one = CaregiverLevel.objects.create(level=1)
+        self.caregiver_level_two = CaregiverLevel.objects.create(level=2)
+        self.caregiver_level_three = CaregiverLevel.objects.create(level=3)
+        self.caregiver_level_zero = CaregiverLevel.objects.create(level=0)
+        self.home = Home.objects.create(home='nears-hub-dev', elderly=self.elderly_person)
+        self.caregiverLevelOne = Caregiver.objects.create(elderly=self.elderly_person, caregiver=self.caregiver_person_one, level=self.caregiver_level_one)
+        self.caregiverLevelOne_2 = Caregiver.objects.create(elderly=self.elderly_person, caregiver=self.caregiver_person_one_2, level=self.caregiver_level_one)
+        self.caregiverLevelTwo = Caregiver.objects.create(elderly=self.elderly_person, caregiver=self.caregiver_person_two, level=self.caregiver_level_two)
+        self.caregiverLevelTwo_2 = Caregiver.objects.create(elderly=self.elderly_person, caregiver=self.caregiver_person_two_2, level=self.caregiver_level_two)
+        self.caregiverLevelThree = Caregiver.objects.create(elderly=self.elderly_person, caregiver=self.caregiver_person_three, level=self.caregiver_level_three)
+        self.caregiverLevelThree_2 = Caregiver.objects.create(elderly=self.elderly_person, caregiver=self.caregiver_person_three_2, level=self.caregiver_level_three)
+        self.caregiverLevelZero = Caregiver.objects.create(elderly=self.elderly_person, caregiver=self.elderly_person, level=self.caregiver_level_zero)
+        self.sensor_alert = SensorAlert.objects.create(subject='stove', start='2022-05-09T16:13:09.754Z', location='kitchen', state=29.22, measurable='anomalous_location_temperature', home=self.home)
+
+    def test_getCaregivers_CaregiverZeroHandler(self):
+        """
+            Test the get_caregivers method of the CaregiverZeroHandler class.
+            This test ensures that the caregiver returning by the method is at the good level (0)
+        """
+        # Creating an instance of the CaregiverZeroHandler handler
+        handler = CaregiverZeroHandler()
+
+        caregiver = handler.get_caregiver(self.sensor_alert)
+
+        # Checking that the handler returns the correct level zero caregiver for the sensor alert
+        self.assertEqual(self.caregiverLevelZero, caregiver)
+
+        # Checking that the handler does not return higher level caregivers for the sensor alert
+        self.assertNotEqual(self.caregiverLevelOne, caregiver)
+        self.assertNotEqual(self.caregiverLevelTwo, caregiver)
+        self.assertNotEqual(self.caregiverLevelThree, caregiver)
+
+        # Check that the caregiver returned are associated with the elderly person
+        self.assertEqual(caregiver.elderly, self.elderly_person)
+
+    def test_getCaregivers_CaregiverOneHandler(self):
+        """
+            Test the get_caregivers method of the CaregiverOneHandler class.
+            This test ensures that the caregiver returning by the method is at the good level (1)
+        """
+        # Create a mock head of the chain
+        head_of_chain = mock.Mock(spec=BaseHandler)
+
+        # Create an instance of the CaregiverOneHandler with the mock head of the chain
+        handler = CaregiverOneHandler(head_of_chain)
+
+        # Get the caregivers returned by the handler for the sensor alert
+        caregivers = handler.get_caregivers(self.sensor_alert)
+
+        # Check that the handler returns level one caregivers for the sensor alert
+        self.assertIn(self.caregiverLevelOne, caregivers)
+
+        # Check that the handler does not return caregivers of other levels for the sensor alert
+        self.assertNotIn(self.caregiverLevelZero, caregivers)
+        self.assertNotIn(self.caregiverLevelTwo, caregivers)
+        self.assertNotIn(self.caregiverLevelThree, caregivers)
+
+        # Check that all caregivers returned are associated with the elderly person
+        for caregiver in caregivers:
+            self.assertEqual(caregiver.elderly, self.elderly_person)
+
+    def test_getCaregivers_CaregiverTwoHandler(self):
+        """
+            Test the get_caregivers method of the CaregiverTwoHandler class.
+            This test ensures that the caregiver returning by the method is at the good level (2)
+        """
+        # Create a mock head of chain
+        head_of_chain = mock.Mock(spec=BaseHandler)
+
+        # Create an instance of the CaregiverTwoHandler with the mock head of the chain
+        handler = CaregiverTwoHandler(head_of_chain)
+
+        # Get the caregivers returned by the handler for the sensor alert
+        caregivers = handler.get_caregivers(self.sensor_alert)
+
+        # Check that the handler returns level two caregivers for the sensor alert
+        self.assertIn(self.caregiverLevelTwo, caregivers)
+
+        # Check that the handler does not return caregivers of other levels for the sensor alert
+        self.assertNotIn(self.caregiverLevelZero, caregivers)
+        self.assertNotIn(self.caregiverLevelOne, caregivers)
+        self.assertNotIn(self.caregiverLevelThree, caregivers)
+
+        # Check that all caregivers returned are associated with the elderly person
+        for caregiver in caregivers:
+            self.assertEqual(caregiver.elderly, self.elderly_person)
+
+    def test_getCaregivers_CaregiverThreeHandler(self):
+        """
+            Test the get_caregivers method of the CaregiverThreeHandler class.
+            This test ensures that the caregiver returning by the method is at the good level (3)
+        """
+        # Create a mock head of chain
+        head_of_chain = mock.Mock(spec=BaseHandler)
+
+        # Create an instance of the CaregiverThreeHandler with the mock head of the chain
+        handler = CaregiverThreeHandler(head_of_chain)
+
+        # Get the caregivers returned by the handler for the sensor alert
+        caregivers = handler.get_caregivers(self.sensor_alert)
+
+        # Check that the handler returns level three caregivers for the sensor alert
+        self.assertIn(self.caregiverLevelThree, caregivers)
+
+        # Check that the handler does not return caregivers of other levels for the sensor alert
+        self.assertNotIn(self.caregiverLevelZero, caregivers)
+        self.assertNotIn(self.caregiverLevelOne, caregivers)
+        self.assertNotIn(self.caregiverLevelTwo, caregivers)
+
+        # Check that all caregivers returned are associated with the elderly person
+        for caregiver in caregivers:
+            self.assertEqual(caregiver.elderly, self.elderly_person)
+
+    def test_getCaregivers_MultipleCaregiversLevelOne(self):
+        """
+            Test the get_caregivers method of the CaregiverThreeHandler class.
+            This test ensures that the caregivers returning by the method is at the good level (1)
+        """
+        # Create a mock head of chain
+        head_of_chain = mock.Mock(spec=BaseHandler)
+
+        # Create an instance of the CaregiverThreeHandler with the mock head of the chain
+        handler = CaregiverOneHandler(head_of_chain)
+
+        # Get the caregivers returned by the handler for the sensor alert
+        caregivers = handler.get_caregivers(self.sensor_alert)
+
+        # Check that the handler returns level three caregivers for the sensor alert
+        self.assertIn(self.caregiverLevelOne, caregivers)
+        self.assertIn(self.caregiverLevelOne_2, caregivers)
+
+        # Check that the handler does not return caregivers of other levels for the sensor alert
+        self.assertNotIn(self.caregiverLevelZero, caregivers)
+        self.assertNotIn(self.caregiverLevelTwo, caregivers)
+        self.assertNotIn(self.caregiverLevelTwo_2, caregivers)
+        self.assertNotIn(self.caregiverLevelThree, caregivers)
+        self.assertNotIn(self.caregiverLevelThree_2, caregivers)
+
+        # Check that all caregivers returned are associated with the elderly person
+        for caregiver in caregivers:
+            self.assertEqual(caregiver.elderly, self.elderly_person)
+
+    def test_getCaregivers_MultipleCaregiversLevelTwo(self):
+        """
+            Test the get_caregivers method of the CaregiverThreeHandler class.
+            This test ensures that the caregivers returning by the method is at the good level (2)
+        """
+        # Create a mock head of chain
+        head_of_chain = mock.Mock(spec=BaseHandler)
+
+        # Create an instance of the CaregiverThreeHandler with the mock head of the chain
+        handler = CaregiverTwoHandler(head_of_chain)
+
+        # Get the caregivers returned by the handler for the sensor alert
+        caregivers = handler.get_caregivers(self.sensor_alert)
+
+        # Check that the handler returns level three caregivers for the sensor alert
+        self.assertIn(self.caregiverLevelTwo, caregivers)
+        self.assertIn(self.caregiverLevelTwo_2, caregivers)
+
+        # Check that the handler does not return caregivers of other levels for the sensor alert
+        self.assertNotIn(self.caregiverLevelZero, caregivers)
+        self.assertNotIn(self.caregiverLevelOne, caregivers)
+        self.assertNotIn(self.caregiverLevelOne_2, caregivers)
+        self.assertNotIn(self.caregiverLevelThree, caregivers)
+        self.assertNotIn(self.caregiverLevelThree_2, caregivers)
+
+        # Check that all caregivers returned are associated with the elderly person
+        for caregiver in caregivers:
+            self.assertEqual(caregiver.elderly, self.elderly_person)
+
+    def test_getCaregivers_MultipleCaregiversLevelThree(self):
+        """
+            Test the get_caregivers method of the CaregiverThreeHandler class.
+            This test ensures that the caregivers returning by the method is at the good level (3)
+        """
+        # Create a mock head of chain
+        head_of_chain = mock.Mock(spec=BaseHandler)
+
+        # Create an instance of the CaregiverThreeHandler with the mock head of the chain
+        handler = CaregiverThreeHandler(head_of_chain)
+
+        # Get the caregivers returned by the handler for the sensor alert
+        caregivers = handler.get_caregivers(self.sensor_alert)
+
+        # Check that the handler returns level three caregivers for the sensor alert
+        self.assertIn(self.caregiverLevelThree, caregivers)
+        self.assertIn(self.caregiverLevelThree_2, caregivers)
+
+        # Check that the handler does not return caregivers of other levels for the sensor alert
+        self.assertNotIn(self.caregiverLevelZero, caregivers)
+        self.assertNotIn(self.caregiverLevelOne, caregivers)
+        self.assertNotIn(self.caregiverLevelOne_2, caregivers)
+        self.assertNotIn(self.caregiverLevelTwo, caregivers)
+        self.assertNotIn(self.caregiverLevelTwo_2, caregivers)
+
+        # Check that all caregivers returned are associated with the elderly person
+        for caregiver in caregivers:
+            self.assertEqual(caregiver.elderly, self.elderly_person)
+
+
