@@ -240,12 +240,12 @@ class HandlersTestCase(TestCase):
         caregiver = handler.get_caregiver(self.sensor_alert)
 
         # Checking that the handler returns the correct level zero caregiver for the sensor alert
-        self.assertEquals(self.caregiverLevelZero, caregiver)
+        self.assertEqual(self.caregiverLevelZero, caregiver)
 
         # Checking that the handler does not return higher level caregivers for the sensor alert
-        self.assertNotEquals(self.caregiverLevelOne, caregiver)
-        self.assertNotEquals(self.caregiverLevelTwo, caregiver)
-        self.assertNotEquals(self.caregiverLevelThree, caregiver)
+        self.assertNotEqual(self.caregiverLevelOne, caregiver)
+        self.assertNotEqual(self.caregiverLevelTwo, caregiver)
+        self.assertNotEqual(self.caregiverLevelThree, caregiver)
 
         # Check that the caregiver returned are associated with the elderly person
         self.assertEqual(caregiver.elderly, self.elderly_person)
