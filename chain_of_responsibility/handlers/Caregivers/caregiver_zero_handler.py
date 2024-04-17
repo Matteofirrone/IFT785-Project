@@ -1,6 +1,7 @@
 import threading
 from api.models import SensorAlert, Caregiver, CaregiverLevel
 from chain_of_responsibility.handlers.base_handler import BaseHandler
+from chain_of_responsibility.signals import help_requested
 from notifications_management.notification_level.notification_level_one import NotificationLevelOne
 from notifications_management.notification_level.notification_level_two import NotificationLevelTwo
 from notifications_management.notification_sender.email_notification_sender import EmailNotificationSender
@@ -23,6 +24,7 @@ class CaregiverZeroHandler(BaseHandler):
         """
         super().__init__()
         self.WAIT_TIME = CaregiverLevel.objects.get(level=0).wait_time
+        help_requested.connect(self.on_help_requested)
 
     def handle(self, request: SensorAlert):
         """
@@ -88,3 +90,20 @@ class CaregiverZeroHandler(BaseHandler):
             request: The request associated with the notification.
         """
         super().handle(request)
+
+    def on_help_requested(self, *args, **kwargs) -> None:
+        """
+        Handles the help_requested signal.
+
+        This method is called when the help_requested signal is emitted. It retrieves the notification object from the
+        keyword arguments and calls the next handler in the chain.
+        """
+
+        notification = kwargs.get('notification')
+
+        # Check if this notification was sent by this handler
+        if notification in self._generated_notifications:
+            self._timer.cancel()
+
+            # The elderly needs help
+            super().handle(notification.sensor_alert)

@@ -29,14 +29,15 @@ class NotificationLevelOne(NotificationLevel):
             f"State: {sensor_alert.state}\n"
             f"Measurable: {sensor_alert.measurable}\n\n"
             f"Please click on the following link to confirm "
-            f"that you have received this notification"
+            f"that you have received this notification\n\n"
             f"Confirmation link: {NotificationSender.generate_link(notification)}\n\n"
+            f"If you need help, please click on the following link to request assistance:\n\n"
+            f"Help link: {NotificationSender.generate_link(notification)}&help_requested=true\n\n"
             f"Best regards,\n"
             f"IFT785 Project Team"
             f"(This in an alert with level 1)"
         )
         return content
-
 
     def generate_subject(self, notification: Notification):
         """
