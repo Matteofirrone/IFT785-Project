@@ -139,3 +139,6 @@ EMAIL_FROM = 'ift785project@gmail.com'
 
 # Test whether the environment is a test environment or not
 TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
+
+# Other configurations
+CAREGIVER_ZERO_SECOND_TIMER_DELAY = 20

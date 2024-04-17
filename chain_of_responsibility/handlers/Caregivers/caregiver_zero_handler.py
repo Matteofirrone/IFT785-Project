@@ -2,6 +2,7 @@ import threading
 from api.models import SensorAlert, Caregiver, CaregiverLevel
 from chain_of_responsibility.handlers.base_handler import BaseHandler
 from chain_of_responsibility.signals import help_requested
+from ift785_project import settings
 from notifications_management.notification_level.notification_level_one import NotificationLevelOne
 from notifications_management.notification_level.notification_level_two import NotificationLevelTwo
 from notifications_management.notification_sender.email_notification_sender import EmailNotificationSender
@@ -77,7 +78,7 @@ class CaregiverZeroHandler(BaseHandler):
             notification: The notification to be sent.
         """
         EmailNotificationSender(NotificationLevelTwo()).deliver_notification(notification)
-        self._timer = threading.Timer(self.WAIT_TIME - 20, lambda: self.second_timer_callback(request))
+        self._timer = threading.Timer(self.WAIT_TIME - settings.CAREGIVER_ZERO_SECOND_TIMER_DELAY, lambda: self.second_timer_callback(request))
         self._timer.start()
 
     def second_timer_callback(self, request):

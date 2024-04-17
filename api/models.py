@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 
 
@@ -22,7 +23,7 @@ class CaregiverLevel(models.Model):
         (3, 'Level 3'),
     ]
     level = models.IntegerField(choices=LEVEL_CHOICES, unique=True)
-    wait_time = models.IntegerField(default=600)
+    wait_time = models.IntegerField(default=600, validators=[MinValueValidator(20)])
 
     def __str__(self):
         return dict(self.LEVEL_CHOICES)[self.level]
