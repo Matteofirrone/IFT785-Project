@@ -7,6 +7,9 @@ class Person(models.Model):
     last_name = models.CharField(max_length=100)
     email = models.EmailField()
 
+    class Meta:
+        unique_together = ('first_name', 'last_name',)
+
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.email})"
 
