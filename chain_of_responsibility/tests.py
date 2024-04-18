@@ -1,5 +1,8 @@
 from unittest import mock
+from unittest.mock import patch, MagicMock
 from django.test import TestCase
+
+import api
 from api.models import Person, CaregiverLevel, Home, Caregiver, SensorAlert, Notification
 from chain_of_responsibility.chain_manager import ChainManager
 from chain_of_responsibility.handlers.Caregivers.caregiver_zero_handler import CaregiverZeroHandler
@@ -13,6 +16,8 @@ from chain_of_responsibility.handlers.Caregivers.generic_caregiver_handler.gener
     GenericCaregiverHandler
 from chain_of_responsibility.handlers.abstract_handler import Handler
 from chain_of_responsibility.handlers.base_handler import BaseHandler
+from notifications_management.notification_level.notification_level_one import NotificationLevelOne
+from notifications_management.notification_level.notification_level_two import NotificationLevelTwo
 
 
 class GenericCaregiverHandlerTestCase(TestCase):
@@ -26,8 +31,11 @@ class GenericCaregiverHandlerTestCase(TestCase):
         self.caregiver_person = Person.objects.create(first_name='Jane', last_name='Doe', email='jane@example.com')
         self.caregiver_level = CaregiverLevel.objects.create(level=1)
         self.home = Home.objects.create(home='nears-hub-dev', elderly=self.elderly_person)
-        self.caregiver = Caregiver.objects.create(elderly=self.elderly_person, caregiver=self.caregiver_person, level=self.caregiver_level)
-        self.sensor_alert = SensorAlert.objects.create(subject='stove', start='2022-05-09T16:13:09.754Z', location='kitchen', state=29.22, measurable='anomalous_location_temperature', home=self.home)
+        self.caregiver = Caregiver.objects.create(elderly=self.elderly_person, caregiver=self.caregiver_person,
+                                                  level=self.caregiver_level)
+        self.sensor_alert = SensorAlert.objects.create(subject='stove', start='2022-05-09T16:13:09.754Z',
+                                                       location='kitchen', state=29.22,
+                                                       measurable='anomalous_location_temperature', home=self.home)
 
     def test_build_notification(self):
         """
@@ -201,6 +209,7 @@ class ChainManagerTestCase(TestCase):
         self.assertIn(chain2, chains)
         self.assertNotIn(chain1, chains)
 
+
 class HandlersTestCase(TestCase):
     def setUp(self):
         """
@@ -210,24 +219,43 @@ class HandlersTestCase(TestCase):
         """
         self.elderly_person = Person.objects.create(first_name='John', last_name='Doe', email='john@example.com')
         self.caregiver_person_one = Person.objects.create(first_name='Jane', last_name='Doe', email='jane@example.com')
-        self.caregiver_person_one_2 = Person.objects.create(first_name='Janette', last_name='Philips', email='janette@example.com')
+        self.caregiver_person_one_2 = Person.objects.create(first_name='Janette', last_name='Philips',
+                                                            email='janette@example.com')
         self.caregiver_person_two = Person.objects.create(first_name='Sam', last_name='Smith', email='sam@example.com')
-        self.caregiver_person_two_2 = Person.objects.create(first_name='Sammy', last_name='Johnson', email='sammy@example.com')
-        self.caregiver_person_three = Person.objects.create(first_name='Felix', last_name='Williams', email='felix@example.com')
-        self.caregiver_person_three_2 = Person.objects.create(first_name='Josh', last_name='Williamson', email='josh@example.com')
+        self.caregiver_person_two_2 = Person.objects.create(first_name='Sammy', last_name='Johnson',
+                                                            email='sammy@example.com')
+        self.caregiver_person_three = Person.objects.create(first_name='Felix', last_name='Williams',
+                                                            email='felix@example.com')
+        self.caregiver_person_three_2 = Person.objects.create(first_name='Josh', last_name='Williamson',
+                                                              email='josh@example.com')
         self.caregiver_level_one = CaregiverLevel.objects.create(level=1)
         self.caregiver_level_two = CaregiverLevel.objects.create(level=2)
         self.caregiver_level_three = CaregiverLevel.objects.create(level=3)
         self.caregiver_level_zero = CaregiverLevel.objects.create(level=0)
         self.home = Home.objects.create(home='nears-hub-dev', elderly=self.elderly_person)
-        self.caregiverLevelOne = Caregiver.objects.create(elderly=self.elderly_person, caregiver=self.caregiver_person_one, level=self.caregiver_level_one)
-        self.caregiverLevelOne_2 = Caregiver.objects.create(elderly=self.elderly_person, caregiver=self.caregiver_person_one_2, level=self.caregiver_level_one)
-        self.caregiverLevelTwo = Caregiver.objects.create(elderly=self.elderly_person, caregiver=self.caregiver_person_two, level=self.caregiver_level_two)
-        self.caregiverLevelTwo_2 = Caregiver.objects.create(elderly=self.elderly_person, caregiver=self.caregiver_person_two_2, level=self.caregiver_level_two)
-        self.caregiverLevelThree = Caregiver.objects.create(elderly=self.elderly_person, caregiver=self.caregiver_person_three, level=self.caregiver_level_three)
-        self.caregiverLevelThree_2 = Caregiver.objects.create(elderly=self.elderly_person, caregiver=self.caregiver_person_three_2, level=self.caregiver_level_three)
-        self.caregiverLevelZero = Caregiver.objects.create(elderly=self.elderly_person, caregiver=self.elderly_person, level=self.caregiver_level_zero)
-        self.sensor_alert = SensorAlert.objects.create(subject='stove', start='2022-05-09T16:13:09.754Z', location='kitchen', state=29.22, measurable='anomalous_location_temperature', home=self.home)
+        self.caregiverLevelOne = Caregiver.objects.create(elderly=self.elderly_person,
+                                                          caregiver=self.caregiver_person_one,
+                                                          level=self.caregiver_level_one)
+        self.caregiverLevelOne_2 = Caregiver.objects.create(elderly=self.elderly_person,
+                                                            caregiver=self.caregiver_person_one_2,
+                                                            level=self.caregiver_level_one)
+        self.caregiverLevelTwo = Caregiver.objects.create(elderly=self.elderly_person,
+                                                          caregiver=self.caregiver_person_two,
+                                                          level=self.caregiver_level_two)
+        self.caregiverLevelTwo_2 = Caregiver.objects.create(elderly=self.elderly_person,
+                                                            caregiver=self.caregiver_person_two_2,
+                                                            level=self.caregiver_level_two)
+        self.caregiverLevelThree = Caregiver.objects.create(elderly=self.elderly_person,
+                                                            caregiver=self.caregiver_person_three,
+                                                            level=self.caregiver_level_three)
+        self.caregiverLevelThree_2 = Caregiver.objects.create(elderly=self.elderly_person,
+                                                              caregiver=self.caregiver_person_three_2,
+                                                              level=self.caregiver_level_three)
+        self.caregiverLevelZero = Caregiver.objects.create(elderly=self.elderly_person, caregiver=self.elderly_person,
+                                                           level=self.caregiver_level_zero)
+        self.sensor_alert = SensorAlert.objects.create(subject='stove', start='2022-05-09T16:13:09.754Z',
+                                                       location='kitchen', state=29.22,
+                                                       measurable='anomalous_location_temperature', home=self.home)
 
     def test_getCaregivers_CaregiverZeroHandler(self):
         """
@@ -416,3 +444,134 @@ class HandlersTestCase(TestCase):
             self.assertEqual(caregiver.elderly, self.elderly_person)
 
 
+class CaregiverZeroHandlerTest(TestCase):
+    """
+        This class contains test cases for the CaregiverZeroHandler class.
+    """
+    def setUp(self):
+        """
+        This method sets up the necessary objects for the tests.
+        It creates an elderly person, a home, a sensor alert, and a caregiver level zero.
+        """
+        self.elderly = Person.objects.create(first_name='John', last_name='Doe', email='john.doe@example.com')
+        self.home = Home.objects.create(home='nears-hub-dev', elderly=self.elderly)
+        self.sensor_alert = SensorAlert.objects.create(subject='stove', start='2022-05-09T16:13:09.754Z',
+                                                       location='kitchen', state=29.22,
+                                                       measurable='anomalous_location_temperature', home=self.home)
+
+        self.caregiver_level_zero = CaregiverLevel.objects.create(level=0, wait_time= 5)
+
+    @patch('chain_of_responsibility.handlers.Caregivers.caregiver_zero_handler.EmailNotificationSender')
+    def test_handles_request_with_existing_caregiver(self, mock_sender):
+        """
+        This test case checks if the handle method of the CaregiverZeroHandler class correctly sends a notification
+        when there is an existing caregiver.
+        """
+        # Setup
+        caregiverLevelZero = Caregiver.objects.create(elderly=self.elderly, caregiver=self.elderly,
+                                                      level=self.caregiver_level_zero)
+        request = self.sensor_alert
+        handler = CaregiverZeroHandler()
+
+        # Act
+        handler.handle(request)
+
+        # Assert
+        call_args = mock_sender.call_args
+        self.assertIsInstance(call_args[0][0], NotificationLevelOne)
+        mock_sender.return_value.deliver_notification.assert_called()
+
+
+    @patch('chain_of_responsibility.handlers.Caregivers.caregiver_zero_handler.EmailNotificationSender')
+    def test_passes_request_to_next_handler_when_no_caregiver(self, mock_sender):
+        """
+        This test case checks if the handle method of the CaregiverZeroHandler class correctly passes the request
+        to the next handler when there is no caregiver.
+        """
+        # Setup
+        request = self.sensor_alert
+        handler = CaregiverZeroHandler()
+
+        # Act & Assert
+        with self.assertRaises(api.models.Caregiver.DoesNotExist):
+            handler.handle(request)
+
+        mock_sender.assert_not_called()
+    @patch('chain_of_responsibility.handlers.Caregivers.caregiver_zero_handler.EmailNotificationSender')
+    def test_sends_second_notification_after_wait_time(self, mock_sender):
+        """
+        This test case checks if the handle method of the CaregiverZeroHandler class correctly sends a second notification
+        after the wait time.
+        """
+        # Setup
+        caregiver = Caregiver.objects.create(elderly=self.elderly, caregiver=self.elderly, level=self.caregiver_level_zero)
+        request = self.sensor_alert
+        handler = CaregiverZeroHandler()
+
+        # Act
+        handler.handle(request)
+        handler._timer.join()
+
+        # Assert
+        call_args = mock_sender.call_args
+        self.assertIsInstance(call_args[0][0], NotificationLevelTwo)
+        mock_sender.return_value.deliver_notification.assert_called()
+
+    @patch('chain_of_responsibility.handlers.Caregivers.caregiver_zero_handler.EmailNotificationSender')
+    def test_passes_request_to_next_handler_after_second_wait_time(self, mock_sender):
+        """
+        This test case checks if the handle method of the CaregiverZeroHandler class correctly passes the request
+        to the next handler after the second wait time.
+        """
+        # Setup
+        caregiver = Caregiver.objects.create(elderly=self.elderly, caregiver=self.elderly, level=self.caregiver_level_zero)
+        request = self.sensor_alert
+        handler = CaregiverZeroHandler()
+        handler.set_next(CaregiverZeroHandler())
+
+        # Act
+        handler.handle(request)
+        handler._timer.join()
+        handler._timer.join()
+
+        # Assert
+        call_args = mock_sender.call_args
+        self.assertIsInstance(call_args[0][0], NotificationLevelTwo)
+        mock_sender.return_value.deliver_notification.assert_called()
+
+
+class TestCaregiverThreeHandler(TestCase):
+    """
+    This class contains test cases for the CaregiverThreeHandler class.
+    """
+    @patch('chain_of_responsibility.handlers.Caregivers.generic_caregiver_handler.caregiver_three_handler.CaregiverLevel.objects.get')
+    @patch('chain_of_responsibility.handlers.Caregivers.generic_caregiver_handler.caregiver_three_handler.Caregiver.objects.filter')
+    def test_handle(self, mock_filter, mock_get):
+        """
+                This method tests the `handle` method of the `CaregiverThreeHandler` class.
+                It checks if the method correctly removes the chain when there are no caregivers of level 3.
+                It also checks if the `filter` method of the `Caregiver` model is called with the correct arguments.
+        """
+        # Mock the SensorAlert object
+        mock_request = MagicMock(spec=SensorAlert)
+
+        # Mock the return value of Caregiver.objects.filter
+        mock_filter.return_value = []
+
+        # Mock the return value of CaregiverLevel.objects.get
+        mock_get.return_value.wait_time = 10
+
+        # Create an instance of CaregiverThreeHandler
+        handler = CaregiverThreeHandler(None)
+
+        # Mock the remove_chain method
+        handler.remove_chain = MagicMock()
+
+        # Call the handle method
+        handler.handle(mock_request)
+
+        # Assert that the remove_chain method was called
+        handler.remove_chain.assert_called_once()
+
+        # Assert that the filter method was called with the correct arguments
+        mock_filter.assert_called_once_with(elderly=mock_request.home.elderly, level__level=3)
