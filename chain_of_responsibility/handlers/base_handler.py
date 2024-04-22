@@ -92,6 +92,8 @@ class BaseHandler(Handler):
         """
         if self._next_handler:
             self._next_handler.handle(request)
+        else:
+            self.remove_chain()  # Remove the chain from the ChainManager
 
     def remove_chain(self) -> None:
         """
