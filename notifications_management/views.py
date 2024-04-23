@@ -1,0 +1,1 @@
+# Dans votre fichier models.py ou un fichier séparé, par exemple, notifications.py

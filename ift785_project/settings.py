@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import sys
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api.apps.ApiConfig',
     'rest_framework',
-    'rest_framework_swagger'
+    "chain_of_responsibility.apps.ChainOfResponsibilityConfig",
+    "notifications_management.apps.NotificationsManagementConfig"
 ]
 
 MIDDLEWARE = [
@@ -124,3 +125,20 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Domain
+DOMAIN = 'http://localhost:8000'
+
+# Email settings
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = 'smtp-relay.brevo.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'flyhox@gmail.com'
+EMAIL_HOST_PASSWORD = '2TJ3mg95txkLdKc8'
+EMAIL_FROM = 'ift785project@gmail.com'
+
+# Test whether the environment is a test environment or not
+TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
+
+# Other configurations
+CAREGIVER_ZERO_SECOND_TIMER_DELAY = 20
